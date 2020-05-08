@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.atguigu.gmall.manager.mapper.PmsProductSaleAttrMapper">
+    <select id="spuSaleAttrListBysql" resultMap="spuSaleAttrListBysqlMap">
+        SELECT
+        psa.*,
+        psav.*,
+        psa.id AS psa_id,
+        psav.id AS psav_id,
+        IF
+        ( ssav.sku_id, 1, 0 ) AS isChecked
+        FROM
+        pms_product_sale_attr psa
+        INNER JOIN pms_product_sale_attr_value psav ON psa.product_id = psav.product_id
+        AND psa.sale_attr_id = psav.sale_attr_id
+        AND psa.product_id =#{productId}
+        LEFT JOIN pms_sku_sale_attr_value ssav ON ssav.sale_attr_id = psa.sale_attr_id
+        AND ssav.sale_attr_value_id = psav.id
+        AND ssav.sku_id =#{skuId}
+        ORDER BY
+        psav_id
+    </select>
+    <resultMap id="spuSaleAttrListBysqlMap" type="com.atguigu.gmall.bean.PmsProductSaleAttr" autoMapping="true">
+        <result column="psa_id" property="id"></result>
+        <collection property="spuSaleAttrValueList" ofType="com.atguigu.gmall.bean.PmsProductSaleAttrValue"
+                    autoMapping="true">
+            <result column="psav_id" property="id"></result>
+        </collection>
+    </resultMap>
+
+    <select id="selectSkuSaleAttrValueListBySpu" resultMap="selectSkuSaleAttrValueListBySpuMap">
+        SELECT
+        psi.*,psav.*,psi.id as psi_id ,psav.id as psav_id
+        FROM
+        pms_sku_info psi
+        INNER JOIN pms_sku_sale_attr_value psav ON psi.id = psav.sku_id
+        AND psi.product_id = #{productId}
+    </select>
+    <resultMap id="selectSkuSaleAttrValueListBySpuMap" type="com.atguigu.gmall.bean.PmsSkuInfo" autoMapping="true">
+        <result column="psi_id" property="id"></result>
+        <collection property="skuSaleAttrValueList" ofType="com.atguigu.gmall.bean.PmsSkuSaleAttrValue"
+                    autoMapping="true">
+            <result column="psav_id" property="id"></result>
+        </collection>
+    </resultMap>
+</mapper>
